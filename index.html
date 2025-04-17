@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES - Demo Giám sát Sản xuất v5</title>
+    <title>MES - Demo Giám sát Sản xuất v7</title>
     <style>
         /* --- General Styles --- */
         :root {
@@ -36,19 +36,28 @@
         button {
             cursor: pointer; padding: 10px 15px; border-radius: 6px;
             border: none; font-size: 0.95em; font-weight: 500;
-            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1); display: inline-flex; align-items: center; gap: 8px;
+            min-height: 44px; /* Minimum touch target height */
         }
         button i { font-size: 1.1em; }
-        button:hover { opacity: 0.9; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+        button:hover { opacity: 0.85; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
         button:active { transform: translateY(1px); }
         .button-primary { background-color: var(--primary-color); color: white; }
         .button-secondary { background-color: var(--secondary-color); color: white; }
         .button-danger { background-color: var(--danger-color); color: white; }
         .button-info { background-color: var(--info-color); color: white; }
         .button-warning { background-color: var(--status-idle); color: var(--text-on-yellow); }
+        /* Icon only button style */
+        .button-icon {
+            background: none; border: none; color: inherit; /* Inherit color from parent */
+            padding: 5px; font-size: 1.1em; /* Adjust icon size */
+            box-shadow: none; min-height: auto; vertical-align: middle; opacity: 0.7;
+        }
+        .button-icon:hover { background-color: rgba(0,0,0,0.1); opacity: 1;}
 
-        /* --- Kanban Overview Styles --- */
+
+        /* --- Kanban Overview Styles (Restored v3 Style) --- */
         #kanban-view { display: block; }
 
         .page-header {
@@ -58,75 +67,44 @@
         }
         .page-header h1 { margin: 0; font-size: 1.7em; font-weight: 500; }
 
-        /* NEW: Overview Stats Section */
-        .overview-stats {
-            background-color: #fff;
-            padding: 15px 20px;
-            margin: 0 20px 20px 20px; /* Match kanban padding */
-            border-radius: 8px;
-            box-shadow: var(--card-shadow);
+        .overview-stats { /* Unchanged */
+            background-color: #fff; padding: 15px 20px; margin: 0 20px 20px 20px;
+            border-radius: 8px; box-shadow: var(--card-shadow);
         }
-        .overview-stats h2 {
-             margin-top: 0; margin-bottom: 15px; font-size: 1.3em; color: var(--primary-color);
-             text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            text-align: center;
-        }
-        .stat-item {
-            background-color: var(--light-gray-bg);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid var(--border-color);
-        }
-        .stat-item .stat-value {
-            display: block; font-size: 1.6em; font-weight: 700;
-            margin-bottom: 3px;
-        }
-        /* Color coding stats */
+        .overview-stats h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.3em; color: var(--primary-color); text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; text-align: center; }
+        .stat-item { background-color: var(--light-gray-bg); padding: 10px; border-radius: 5px; border: 1px solid var(--border-color); }
+        .stat-item .stat-value { display: block; font-size: 1.6em; font-weight: 700; margin-bottom: 3px; }
         .stat-item .stat-value.running { color: var(--status-running); }
         .stat-item .stat-value.stopped { color: var(--status-stopped); }
-        .stat-item .stat-value.idle { color: #c89c07; } /* Darker yellow for text */
+        .stat-item .stat-value.idle { color: #c89c07; }
         .stat-item .stat-value.offline { color: var(--status-offline); }
         .stat-item .stat-label { font-size: 0.85em; color: var(--medium-text); }
-        .overview-chart-placeholder {
-            margin-top: 15px; padding: 20px; background-color: #f0f0f0;
-            text-align: center; color: #888; border-radius: 5px;
-             font-style: italic;
-        }
+        .overview-chart-placeholder { margin-top: 15px; padding: 20px; background-color: #f0f0f0; text-align: center; color: #888; border-radius: 5px; font-style: italic; }
 
-
-        .kanban-board {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Reverted to 300px min */
-            gap: 25px; /* Reverted to larger gap */
-            padding: 0 20px 20px 20px;
+        .kanban-board { /* Restored v3 styling */
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px; padding: 0 20px 20px 20px;
             width: 100%; box-sizing: border-box;
         }
-        .work-center-column {
-            background-color: var(--light-gray-bg); border-radius: 8px;
-            padding: 20px; /* Reverted to larger padding */ box-shadow: var(--card-shadow); align-self: start;
-            /* Removed top border accent */
+        .work-center-column { /* Restored v3 styling */
+            background-color: var(--light-gray-bg); border-radius: 8px; padding: 20px;
+            box-shadow: var(--card-shadow); align-self: start;
         }
-        .work-center-column h2 {
+        .work-center-column h2 { /* Restored v3 styling */
             margin-top: 0; margin-bottom: 20px; padding-bottom: 12px;
             border-bottom: 2px solid var(--border-color); font-size: 1.25em;
             color: var(--medium-text); text-align: center; font-weight: 600;
         }
-        .machine-cards-container { display: flex; flex-direction: column; gap: 18px; } /* Reverted gap */
-        .machine-card {
-            border-radius: 8px; /* Slightly rounder */ padding: 18px; /* Reverted padding */ color: var(--text-on-dark); /* Default white */
-            box-shadow: var(--card-shadow); cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            text-decoration: none; display: block;
-            border-left: none; /* Removed border accent */
+        .machine-cards-container { display: flex; flex-direction: column; gap: 18px; }
+        .machine-card { /* Restored v3 styling */
+            border-radius: 8px; padding: 18px; color: var(--text-on-dark);
+            box-shadow: var(--card-shadow); cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none; display: block; border-left: none;
         }
         .machine-card:hover { transform: translateY(-4px); box-shadow: var(--card-hover-shadow); }
 
-        /* Status Colors - Reverted to Full Background */
+        /* Status Colors - Full Background */
         .status-running { background-color: var(--status-running); }
         .status-idle { background-color: var(--status-idle); color: var(--text-on-yellow); }
         .status-stopped { background-color: var(--status-stopped); }
@@ -141,30 +119,15 @@
          .status-idle .machine-name { border-bottom: 1px solid rgba(0, 0, 0, 0.2); }
          .status-idle .label { opacity: 0.8;}
 
-
-        .machine-card .machine-name {
-            margin-top: 0; margin-bottom: 8px; font-size: 1.2em; /* Reverted size */ font-weight: 700;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3); padding-bottom: 6px;
-             /* White text on colored background */
-            color: var(--text-on-dark);
+        .machine-card .machine-name { /* Restored v3 styling */
+            margin-top: 0; margin-bottom: 8px; font-size: 1.2em; font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3); padding-bottom: 6px; color: var(--text-on-dark);
         }
-         /* Specific override for idle */
          .status-idle .machine-name { color: var(--text-on-yellow); border-bottom-color: rgba(0,0,0,0.2); }
-
-        .machine-card .machine-status-text {
-             font-size: 0.9em; font-style: italic; margin-bottom: 10px; opacity: 0.9;
-             /* White text on colored background */
-              color: var(--text-on-dark);
-        }
+        .machine-card .machine-status-text { font-size: 0.9em; font-style: italic; margin-bottom: 10px; opacity: 0.9; color: var(--text-on-dark); }
           .status-idle .machine-status-text { color: var(--text-on-yellow); }
-
-        .machine-card .machine-details {
-             font-size: 0.9em; line-height: 1.5;
-             /* White text on colored background */
-             color: var(--text-on-dark); opacity: 0.9;
-        }
+        .machine-card .machine-details { font-size: 0.9em; line-height: 1.5; color: var(--text-on-dark); opacity: 0.9; }
           .status-idle .machine-details { color: var(--text-on-yellow); }
-
         .machine-card .machine-details p { margin: 5px 0; }
         .machine-card .machine-details .label { font-weight: 600; opacity: 0.75; margin-right: 5px;}
         .machine-card .machine-details .wo-id { font-weight: 500; }
@@ -174,87 +137,74 @@
         #detail-view { display: none; }
 
         .detail-view .container {
-             max-width: 1100px; margin: 20px auto; padding: 25px 30px; background-color: #fff;
-             border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+             max-width: 1100px; margin: 20px auto; padding: 0; background-color: #fff;
+             border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden;
         }
+        /* Header colored by status */
         .detail-view .detail-header {
-             text-align: center; margin-bottom: 20px; padding-bottom: 15px;
-             border-bottom: 1px solid var(--border-color); position: relative;
+             text-align: center; padding: 20px 25px; margin-bottom: 0; border-bottom: none;
+             transition: background-color 0.3s ease; color: var(--text-on-dark);
         }
-        .detail-view .detail-header h1 { font-size: 1.9em; margin: 0 0 5px 0; color: var(--dark-text); }
-        /* Status indicator now uses colored background matching Kanban */
-        .detail-view .detail-header .current-status {
-            font-size: 1.1em; padding: 8px 20px; /* More padding */ border-radius: 20px; /* Pill shape */
-            display: inline-block; font-weight: 600; margin-top: 10px; color: var(--text-on-dark); /* Default white */
-        }
-         .detail-view .detail-header .current-status.status-running { background-color: var(--status-running); }
-         .detail-view .detail-header .current-status.status-idle { background-color: var(--status-idle); color: var(--text-on-yellow); }
-         .detail-view .detail-header .current-status.status-stopped { background-color: var(--status-stopped); }
-         .detail-view .detail-header .current-status.status-offline { background-color: var(--status-offline); }
-         .detail-view .detail-header .current-status.status-maintenance { background-color: var(--status-maintenance); }
-         /* Extra info for stopped state */
-         .detail-view .detail-header .status-extra-info {
-             font-size: 0.95em; color: var(--medium-text); margin-top: 10px; display: block; /* Make it block */
-             font-style: italic;
-         }
+        .detail-view .detail-header.status-running { background-color: var(--status-running); }
+        .detail-view .detail-header.status-idle { background-color: var(--status-idle); color: var(--text-on-yellow); }
+        .detail-view .detail-header.status-stopped { background-color: var(--status-stopped); }
+        .detail-view .detail-header.status-offline { background-color: var(--status-offline); }
+        .detail-view .detail-header.status-maintenance { background-color: var(--status-maintenance); }
+
+        .detail-view .detail-header h1 { font-size: 1.8em; margin: 0 0 8px 0; font-weight: 600; color: inherit; }
+        /* Status text simpler */
+        .detail-view .detail-header .status-line { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px;}
+        .detail-view .detail-header .current-status-text { font-size: 1.1em; font-weight: 500; display: inline-block; padding: 4px 0; /* No padding needed */ color: inherit; }
+         /* Refresh button next to status */
+         .detail-view .detail-header .refresh-button { margin-left: 5px; font-size: 1em; /* Adjust size */ }
+        .detail-view .detail-header .status-extra-info { font-size: 0.95em; margin-top: 10px; display: block; font-style: italic; opacity: 0.9; color: inherit; }
 
         /* Action Buttons Bar */
         .detail-actions-bar {
-            background-color: var(--light-gray-bg); padding: 15px 20px; border-radius: 8px;
+            background-color: var(--light-gray-bg); padding: 15px 20px;
             margin-bottom: 25px; display: flex; justify-content: space-between;
-            align-items: center; flex-wrap: wrap; gap: 12px; border: 1px solid var(--border-color);
+            align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--border-color);
         }
          .detail-actions-bar .main-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-         .detail-actions-bar button { font-size: 0.95em; padding: 10px 15px; } /* Consistent button size */
+         .detail-actions-bar button { font-size: 1em; padding: 12px 18px; /* Larger buttons */ }
          .detail-actions-bar .back-button-area { margin-left: auto; }
 
-        /* Detail Content Layout */
+        /* Detail Content Area */
+         .detail-content-area { padding: 0 25px 25px 25px; }
          .detail-content-layout { display: grid; gap: 25px; }
-         @media (min-width: 992px) {
-             .detail-content-layout { grid-template-columns: 1fr 1fr; align-items: start; }
-             .detail-content-layout .full-width { grid-column: 1 / -1; }
-         }
+         @media (min-width: 992px) { .detail-content-layout { grid-template-columns: 1fr 1fr; align-items: start; } }
 
-        .detail-section {
+        .detail-section { /* Styling remains similar */
             background-color: #fff; padding: 20px; border-radius: 8px;
             margin-bottom: 0; border: 1px solid var(--border-color); box-shadow: var(--card-shadow);
         }
         .detail-section h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.25em; color: var(--primary-color); border-bottom: 1px solid #eee; padding-bottom: 10px; display: flex; align-items: center; gap: 8px;}
-        .detail-section h3 i { color: var(--primary-color); opacity: 0.8; } /* Icon color */
+        .detail-section h3 i { color: var(--primary-color); opacity: 0.8; }
         .detail-section ul { list-style: none; padding: 0; margin: 0; }
         .detail-section li { margin-bottom: 10px; font-size: 1em; display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px dotted #eee;}
         .detail-section li:last-child { border-bottom: none; }
         .detail-section .label { font-weight: 600; color: var(--medium-text); min-width: 130px; display: inline-block; }
         .detail-section .value { font-weight: 500; color: var(--dark-text); text-align: right; }
-
-        /* Progress Bar */
+        /* Other detail sections (progress, kpi, joblist, alerts) styling remains */
         .progress-info { margin-bottom: 15px; text-align: center; }
         .progress-info .label { font-size: 1em; font-weight: 600; display: block; margin-bottom: 5px;}
         .progress-info .values { font-size: 1.2em; font-weight: 600; }
         .progress-bar-container { width: 100%; background-color: #ddd; border-radius: 8px; height: 28px; overflow: hidden; margin-top: 10px;}
         .progress-bar { height: 100%; background-color: var(--primary-color); text-align: center; line-height: 28px; color: white; font-weight: bold; white-space: nowrap; font-size: 1em;}
-
-        /* KPIs Section */
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; }
         .kpi-item { text-align: center; padding: 15px; background-color: var(--light-gray-bg); border-radius: 5px; border: 1px solid var(--border-color); }
         .kpi-item .kpi-value { font-size: 1.7em; font-weight: 700; display: block; margin-bottom: 5px; }
         .kpi-item .kpi-label { font-size: 0.85em; color: var(--light-text); }
-
-        /* Job List Section */
         .job-list li { padding: 10px 5px; }
         .job-list .job-status { font-weight: bold; margin-right: 10px; display: inline-block; min-width: 60px;}
         .job-list .job-status.active { color: var(--status-running); }
         .job-list .job-status.queued { color: var(--light-text); }
         .job-list .job-details { color: var(--medium-text); font-size: 0.95em;}
-
-        /* Alerts Section */
         .detail-section.alerts { background-color: #fffbe6; border-color: #ffe58f; }
         .alerts h3 { color: #faad14; }
         .alerts h3 i { color: #faad14; }
         .alert-item { padding: 5px 0; color: #d46b08; font-weight: 500; }
-
-        /* Footer */
-        .detail-view .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: var(--light-text); border-top: 1px solid #eee; padding-top: 15px; }
+        .detail-view .footer { margin: 30px 25px 0 25px; text-align: center; font-size: 0.9em; color: var(--light-text); border-top: 1px solid #eee; padding: 15px 0 5px 0; }
 
         /* Modal Styles (Unchanged) */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
@@ -269,36 +219,45 @@
 
         /* Responsive Adjustments */
         @media (max-width: 768px) {
-            .kanban-board { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; padding: 0 10px 10px 10px;} /* Adjust minmax if needed */
+            /* Kanban */
+            .kanban-board { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; padding: 0 15px 15px 15px;}
             .page-header h1 { font-size: 1.4em; }
             .work-center-column h2 { font-size: 1.1em; }
-            .machine-card .machine-name { font-size: 1.05em; }
-
-            .overview-stats { margin: 0 10px 15px 10px; }
+             .machine-card .machine-name { font-size: 1.05em; }
+            .overview-stats { margin: 0 15px 15px 15px; }
             .stats-grid { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px;}
             .stat-item .stat-value { font-size: 1.4em;}
 
-            .detail-view .container { margin: 10px; padding: 15px; width: auto;}
-            .detail-view .detail-header h1 { font-size: 1.5em; }
-            .detail-view .detail-header .current-status { font-size: 1em; }
-            .detail-actions-bar { flex-direction: column; align-items: stretch;}
-            .detail-actions-bar .main-actions { order: 1; width: 100%; justify-content: space-around; margin-bottom: 15px; } /* Main actions first on mobile */
-            .detail-actions-bar .back-button-area { order: 2; margin-left: 0; width: 100%; text-align: center;}
-            .detail-actions-bar .back-button-area button { width: auto; }
+            /* Detail View */
+            .detail-view .container { margin: 10px; padding: 0; width: auto;}
+            .detail-view .detail-header { padding: 15px 20px; }
+            .detail-view .detail-header h1 { font-size: 1.4em; }
+            .detail-view .detail-header .current-status-text { font-size: 1em; padding: 5px 15px;}
+            .detail-view .detail-header .refresh-button { font-size: 1em; padding: 3px;} /* Adjust refresh button */
+             .detail-view .detail-content-area { padding: 0 15px 15px 15px; }
+             .detail-actions-bar { flex-direction: column; align-items: stretch; padding: 10px 15px;}
+            /* Mobile Button Layout: 2x2 Grid */
+             .detail-actions-bar .main-actions {
+                 order: 1; display: grid; grid-template-columns: 1fr 1fr;
+                 gap: 12px; width: 100%; margin-bottom: 15px;
+             }
+             .detail-actions-bar .main-actions button { width: 100%; } /* Fill grid cell */
+             .detail-actions-bar .back-button-area { order: 2; margin-left: 0; width: 100%; text-align: center; }
+             .detail-actions-bar .back-button-area button { width: auto; padding: 10px 25px; }
 
              .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
              .kpi-item .kpi-value { font-size: 1.4em;}
-
              .modal-content { width: 90%; margin: 10% auto; padding: 20px;}
         }
          @media (max-width: 480px) {
              .kpi-grid { grid-template-columns: 1fr 1fr; }
              button { padding: 12px 10px; font-size: 1em; }
-             .detail-actions-bar .main-actions button { width: 48%; }
+             .detail-actions-bar .main-actions button { font-size: 0.9em; gap: 5px; padding: 12px 8px;}
+             .detail-actions-bar .main-actions i { font-size: 1em;}
          }
 
     </style>
-     <!-- Font Awesome for Icons -->
+     <!-- Font Awesome -->
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
@@ -307,180 +266,48 @@
     <!-- = Kanban Overview View  = -->
     <!-- ======================= -->
     <div id="kanban-view">
-        <header class="page-header">
-            <h1>Tổng Quan Trạng Thái Máy Móc</h1>
-            <!-- 1:02 PM, April 17, 2025, HCMC -->
-        </header>
-
-         <!-- NEW: Overview Stats Section -->
-        <section class="overview-stats">
-            <h2>Tình hình Chung</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-value">30</span>
-                    <span class="stat-label">Tổng số máy</span>
-                </div>
-                 <div class="stat-item">
-                    <span class="stat-value running">18</span>
-                    <span class="stat-label">Đang chạy</span>
-                </div>
-                 <div class="stat-item">
-                    <span class="stat-value stopped">5</span>
-                    <span class="stat-label">Đang dừng</span>
-                </div>
-                 <div class="stat-item">
-                    <span class="stat-value idle">4</span>
-                    <span class="stat-label">Chờ/Không tải</span>
-                </div>
-                 <div class="stat-item">
-                    <span class="stat-value maintenance">1</span>
-                    <span class="stat-label">Bảo trì</span>
-                </div>
-                 <div class="stat-item">
-                    <span class="stat-value offline">2</span>
-                    <span class="stat-label">Offline</span>
-                </div>
-                 <div class="stat-item">
-                    <span class="stat-value running">76%</span>
-                    <span class="stat-label">OEE Trung bình</span>
-                </div>
-            </div>
-             <div class="overview-chart-placeholder">
-                 (Khu vực này có thể hiển thị biểu đồ tròn tỷ lệ trạng thái máy hoặc biểu đồ OEE theo thời gian)
-             </div>
-        </section>
+         <!-- Header and Stats sections remain the same as previous version -->
+         <header class="page-header"><h1>Tổng Quan Trạng Thái Máy Móc</h1></header>
+         <section class="overview-stats"><h2>Tình hình Chung</h2><div class="stats-grid"><div class="stat-item"><span class="stat-value">30</span><span class="stat-label">Tổng số máy</span></div><div class="stat-item"><span class="stat-value running">18</span><span class="stat-label">Đang chạy</span></div><div class="stat-item"><span class="stat-value stopped">5</span><span class="stat-label">Đang dừng</span></div><div class="stat-item"><span class="stat-value idle">4</span><span class="stat-label">Chờ/Không tải</span></div><div class="stat-item"><span class="stat-value maintenance">1</span><span class="stat-label">Bảo trì</span></div><div class="stat-item"><span class="stat-value offline">2</span><span class="stat-label">Offline</span></div><div class="stat-item"><span class="stat-value running">76%</span><span class="stat-label">OEE Trung bình</span></div></div><div class="overview-chart-placeholder">(Placeholder for Overview Chart)</div></section>
 
         <div class="kanban-board">
-            <!-- WC: MÁY STATION -->
+             <!-- WC: MÁY STATION -->
             <div class="work-center-column">
                 <h2>MÁY STATION</h2>
                 <div class="machine-cards-container">
-                    <a href="#detail-stat1" class="machine-card status-running" id="stat-1-card"> <!-- CLICKABLE -->
-                        <h3 class="machine-name">STAT-1</h3>
-                        <p class="machine-status-text">Đang chạy</p>
-                        <div class="machine-details">
-                            <p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00398</span></p>
-                        </div>
-                    </a>
-                    <a href="#detail-stat2" class="machine-card status-running">
-                        <h3 class="machine-name">STAT-2</h3>
-                        <p class="machine-status-text">Đang chạy</p>
-                         <div class="machine-details">
-                            <p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00398</span></p>
-                        </div>
-                    </a>
-                    <a href="#detail-stat3" class="machine-card status-idle">
-                        <h3 class="machine-name">STAT-3</h3>
-                        <p class="machine-status-text">Chờ vận hành</p>
-                        <div class="machine-details">
-                             <p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00401 (Next)</span></p>
-                        </div>
-                    </a>
-                     <a href="#detail-stat4" class="machine-card status-stopped">
-                        <h3 class="machine-name">STAT-4</h3>
-                        <p class="machine-status-text">Dừng - Bảo trì đột xuất (1h 10m)</p>
-                        <div class="machine-details">
-                             <p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00399</span></p>
-                        </div>
-                    </a>
-                     <a href="#detail-stat5" class="machine-card status-offline">
-                        <h3 class="machine-name">STAT-5</h3>
-                        <p class="machine-status-text">Tắt máy</p>
-                        <div class="machine-details">
-                             <p><span class="label">Lệnh SX:</span> <span class="wo-id">---</span></p>
-                        </div>
-                    </a>
+                    <a href="#detail-stat1" class="machine-card status-running" id="stat-1-card"><h3 class="machine-name">STAT-1</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00398</span></p></div></a>
+                    <a href="#detail-stat2" class="machine-card status-running"><h3 class="machine-name">STAT-2</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00398</span></p></div></a>
+                    <a href="#detail-stat3" class="machine-card status-idle"><h3 class="machine-name">STAT-3</h3><p class="machine-status-text">Chờ vận hành</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00401 (Next)</span></p></div></a>
+                    <a href="#detail-stat4" class="machine-card status-stopped"><h3 class="machine-name">STAT-4</h3><p class="machine-status-text">Dừng - Bảo trì đột xuất (1h 10m)</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00399</span></p></div></a>
+                    <a href="#detail-stat5" class="machine-card status-offline"><h3 class="machine-name">STAT-5</h3><p class="machine-status-text">Tắt máy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">---</span></p></div></a>
                 </div>
             </div>
-
-             <!-- WC: PHAY M H5 -->
-            <div class="work-center-column">
-                <h2>PHAY M H5</h2>
-                <div class="machine-cards-container">
-                     <a href="#detail-h501" class="machine-card status-running">
-                        <h3 class="machine-name">H501</h3>
-                        <p class="machine-status-text">Đang chạy</p>
-                        <div class="machine-details">
-                            <p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00405</span></p>
-                        </div>
-                    </a>
-                     <a href="#detail-h502" class="machine-card status-running">
-                        <h3 class="machine-name">H502</h3>
-                         <p class="machine-status-text">Đang chạy</p>
-                        <div class="machine-details">
-                            <p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00405</span></p>
-                        </div>
-                    </a>
-                     <a href="#detail-h503" class="machine-card status-idle">
-                        <h3 class="machine-name">H503</h3>
-                         <p class="machine-status-text">Chờ sản phẩm</p>
-                        <div class="machine-details">
-                            <p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00406 (Next)</span></p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-             <!-- WC: MÁY CNC HOLDER -->
-            <div class="work-center-column">
-                 <h2>MÁY CNC HOLDER</h2>
-                <div class="machine-cards-container">
-                     <a href="#detail-cnc01" class="machine-card status-running">
-                        <h3 class="machine-name">CNC01</h3>
-                        <p class="machine-status-text">Đang chạy</p>
-                         <div class="machine-details">
-                            <p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00397</span></p>
-                        </div>
-                    </a>
-                     <a href="#detail-cnc02" class="machine-card status-maintenance">
-                        <h3 class="machine-name">CNC02</h3>
-                         <p class="machine-status-text">Bảo trì kế hoạch</p>
-                        <div class="machine-details">
-                             <p><span class="label">Lệnh SX:</span> <span class="wo-id">---</span></p>
-                        </div>
-                    </a>
-                     <a href="#detail-cnc03" class="machine-card status-stopped">
-                        <h3 class="machine-name">CNC03</h3>
-                         <p class="machine-status-text">Dừng - Lỗi dao cụ (45m)</p>
-                        <div class="machine-details">
-                            <p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00400</span></p>
-                        </div>
-                    </a>
-                     <a href="#detail-cnc04" class="machine-card status-running">
-                        <h3 class="machine-name">CNC04</h3>
-                        <p class="machine-status-text">Đang chạy</p>
-                         <div class="machine-details">
-                            <p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00397</span></p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- WC: MÁY CNC BRG -->
+             <!-- Other WCs data (same as previous version) -->
+            <div class="work-center-column"><h2>PHAY M H5</h2><div class="machine-cards-container"><a href="#detail-h501" class="machine-card status-running"><h3 class="machine-name">H501</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00405</span></p></div></a><a href="#detail-h502" class="machine-card status-running"><h3 class="machine-name">H502</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00405</span></p></div></a><a href="#detail-h503" class="machine-card status-idle"><h3 class="machine-name">H503</h3><p class="machine-status-text">Chờ sản phẩm</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00406 (Next)</span></p></div></a></div></div>
+            <div class="work-center-column"><h2>MÁY CNC HOLDER</h2><div class="machine-cards-container"><a href="#detail-cnc01" class="machine-card status-running"><h3 class="machine-name">CNC01</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00397</span></p></div></a><a href="#detail-cnc02" class="machine-card status-maintenance"><h3 class="machine-name">CNC02</h3><p class="machine-status-text">Bảo trì kế hoạch</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">---</span></p></div></a><a href="#detail-cnc03" class="machine-card status-stopped"><h3 class="machine-name">CNC03</h3><p class="machine-status-text">Dừng - Lỗi dao cụ (45m)</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00400</span></p></div></a><a href="#detail-cnc04" class="machine-card status-running"><h3 class="machine-name">CNC04</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00397</span></p></div></a></div></div>
             <div class="work-center-column"><h2>MÁY CNC BRG</h2><div class="machine-cards-container"><a href="#detail-brg01" class="machine-card status-running"><h3 class="machine-name">BRG01</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00410</span></p></div></a><a href="#detail-brg02" class="machine-card status-running"><h3 class="machine-name">BRG02</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00410</span></p></div></a></div></div>
-            <!-- WC: PT COVER -->
-             <div class="work-center-column"><h2>PT COVER</h2><div class="machine-cards-container"><a href="#detail-pt01" class="machine-card status-stopped"><h3 class="machine-name">PT01</h3><p class="machine-status-text">Dừng - Chờ QC duyệt mẫu (35m)</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00411</span></p></div></a></div></div>
-             <!-- WC: PHAY M B3 -->
-             <div class="work-center-column"><h2>PHAY M B3</h2><div class="machine-cards-container"><a href="#detail-b301" class="machine-card status-running"><h3 class="machine-name">B301</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00415</span></p></div></a><a href="#detail-b302" class="machine-card status-idle"><h3 class="machine-name">B302</h3><p class="machine-status-text">Chờ lệnh</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">---</span></p></div></a></div></div>
-             <!-- WC: MÁY CNC HOUSING -->
-             <div class="work-center-column"><h2>MÁY CNC HOUSING</h2><div class="machine-cards-container"><a href="#detail-cnc11" class="machine-card status-running"><h3 class="machine-name">CNC11</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00420</span></p></div></a><a href="#detail-cnc12" class="machine-card status-running"><h3 class="machine-name">CNC12</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00420</span></p></div></a><a href="#detail-cnc13" class="machine-card status-offline"><h3 class="machine-name">CNC13</h3><p class="machine-status-text">Tắt máy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">---</span></p></div></a></div></div>
-             <!-- WC: LINE SHAFT -->
-             <div class="work-center-column"><h2>LINE SHAFT</h2><div class="machine-cards-container"><a href="#detail-line11" class="machine-card status-running"><h3 class="machine-name">LINE11</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00398</span></p></div></a><a href="#detail-line12" class="machine-card status-idle"><h3 class="machine-name">LINE12</h3><p class="machine-status-text">Chờ bán thành phẩm</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00398</span></p></div></a></div></div>
-              <!-- WC: LINE CESPOL -->
-             <div class="work-center-column"><h2>LINE CESPOL</h2><div class="machine-cards-container"><a href="#detail-line201" class="machine-card status-stopped"><h3 class="machine-name">LINE201</h3><p class="machine-status-text">Dừng - Thiếu người vận hành (1h 05m)</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00430</span></p></div></a><a href="#detail-line202" class="machine-card status-running"><h3 class="machine-name">LINE202</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00430</span></p></div></a></div></div>
-
+            <div class="work-center-column"><h2>PT COVER</h2><div class="machine-cards-container"><a href="#detail-pt01" class="machine-card status-stopped"><h3 class="machine-name">PT01</h3><p class="machine-status-text">Dừng - Chờ QC duyệt mẫu (35m)</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00411</span></p></div></a></div></div>
+            <div class="work-center-column"><h2>PHAY M B3</h2><div class="machine-cards-container"><a href="#detail-b301" class="machine-card status-running"><h3 class="machine-name">B301</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00415</span></p></div></a><a href="#detail-b302" class="machine-card status-idle"><h3 class="machine-name">B302</h3><p class="machine-status-text">Chờ lệnh</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">---</span></p></div></a></div></div>
+            <div class="work-center-column"><h2>MÁY CNC HOUSING</h2><div class="machine-cards-container"><a href="#detail-cnc11" class="machine-card status-running"><h3 class="machine-name">CNC11</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00420</span></p></div></a><a href="#detail-cnc12" class="machine-card status-running"><h3 class="machine-name">CNC12</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00420</span></p></div></a><a href="#detail-cnc13" class="machine-card status-offline"><h3 class="machine-name">CNC13</h3><p class="machine-status-text">Tắt máy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">---</span></p></div></a></div></div>
+            <div class="work-center-column"><h2>LINE SHAFT</h2><div class="machine-cards-container"><a href="#detail-line11" class="machine-card status-running"><h3 class="machine-name">LINE11</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00398</span></p></div></a><a href="#detail-line12" class="machine-card status-idle"><h3 class="machine-name">LINE12</h3><p class="machine-status-text">Chờ bán thành phẩm</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00398</span></p></div></a></div></div>
+            <div class="work-center-column"><h2>LINE CESPOL</h2><div class="machine-cards-container"><a href="#detail-line201" class="machine-card status-stopped"><h3 class="machine-name">LINE201</h3><p class="machine-status-text">Dừng - Thiếu người vận hành (1h 10m)</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00430</span></p></div></a><a href="#detail-line202" class="machine-card status-running"><h3 class="machine-name">LINE202</h3><p class="machine-status-text">Đang chạy</p><div class="machine-details"><p><span class="label">Lệnh SX:</span> <span class="wo-id">MP/2025/00430</span></p></div></a></div></div>
         </div> <!-- End Kanban Board -->
     </div> <!-- End Kanban View -->
 
     <!-- ============================= -->
     <!-- = Machine Detail View       = -->
-    <!-- = (Initially Hidden)        = -->
     <!-- ============================= -->
     <div id="detail-view" class="detail-view">
         <div class="container">
-            <div class="detail-header">
+             <!-- Header colored by status -->
+            <div class="detail-header status-running" id="detail-header-section">
                 <h1 id="detail-machine-name">CHI TIẾT MÁY STAT-1</h1>
-                <span id="detail-machine-status" class="current-status status-running">Đang chạy</span>
+                <div class="status-line"> <!-- Wrap status and refresh -->
+                    <span id="detail-machine-status-text" class="current-status-text">Đang chạy</span>
+                     <button type="button" class="button-icon refresh-button" id="refresh-status-button" title="Làm mới trạng thái">
+                        <i class="fas fa-sync-alt"></i>
+                     </button>
+                 </div>
                 <div id="detail-status-extra" class="status-extra-info">Hoạt động bình thường</div>
             </div>
 
@@ -503,103 +330,86 @@
                  </div>
                  <div class="back-button-area">
                     <button type="button" class="button-secondary" id="back-button">
-                        <i class="fas fa-arrow-left"></i> Quay lại Tổng Quan
+                        <i class="fas fa-arrow-left"></i> Quay lại
                     </button>
                  </div>
             </section>
 
-             <!-- Detail Content Layout Grid -->
-             <div class="detail-content-layout">
-                 <!-- Left Column -->
-                 <div class="column">
-                    <!-- Current Job Info -->
-                    <div class="detail-section">
-                        <h3><i class="fas fa-industry"></i> Lệnh làm việc Hiện tại</h3>
-                        <ul>
-                            <li><span class="label">Lệnh Sản xuất:</span> <span class="value" id="detail-wo-id">MP/2025/00398</span></li>
-                            <li><span class="label">Lệnh Làm việc (Op):</span> <span class="value" id="detail-op-id">OP-10 - Gia công mặt A</span></li>
-                             <li><span class="label">Sản phẩm:</span> <span class="value" id="detail-product">[1112411-001] CFR SHAFT 13370</span></li>
-                        </ul>
-                    </div>
-
-                    <!-- Progress Section -->
-                     <div class="detail-section">
-                         <h3><i class="fas fa-tasks"></i> Tiến độ Lệnh làm việc (Op 10)</h3>
-                         <div class="progress-info">
-                             <span class="label">Sản lượng:</span>
-                             <span class="values"><span id="detail-qty-good">55</span> / <span id="detail-qty-plan">120</span> (Đạt/Kế hoạch)</span>
-                             <span style="margin-left: 15px;">Hỏng: <span id="detail-qty-scrap" class="text-danger">1</span></span>
+             <!-- Detail Content Area -->
+             <div class="detail-content-area">
+                 <div class="detail-content-layout">
+                     <!-- Left Column -->
+                     <div class="column">
+                         <!-- FIXED: Added detail-section wrapper -->
+                        <div class="detail-section">
+                            <h3><i class="fas fa-industry"></i> Lệnh làm việc Hiện tại</h3>
+                            <ul>
+                                <li><span class="label">Lệnh Sản xuất:</span> <span class="value" id="detail-wo-id">MP/2025/00398</span></li>
+                                <li><span class="label">Lệnh Làm việc (Op):</span> <span class="value" id="detail-op-id">OP-10 - Gia công mặt A</span></li>
+                                 <li><span class="label">Sản phẩm:</span> <span class="value" id="detail-product">[1112411-001] CFR SHAFT 13370</span></li>
+                            </ul>
+                        </div>
+                         <!-- FIXED: Added detail-section wrapper -->
+                        <div class="detail-section">
+                             <h3><i class="fas fa-tasks"></i> Tiến độ Lệnh làm việc (Op 10)</h3>
+                             <div class="progress-info">
+                                 <span class="label">Sản lượng:</span>
+                                 <span class="values"><span id="detail-qty-good">55</span> / <span id="detail-qty-plan">120</span> (Đạt/Kế hoạch)</span>
+                                 <span style="margin-left: 15px;">Hỏng: <span id="detail-qty-scrap" class="text-danger">1</span></span>
+                             </div>
+                             <div class="progress-bar-container">
+                                    <div id="detail-progress-bar" class="progress-bar" style="width: 46%;">46%</div>
+                             </div>
+                        </div>
+                        <!-- FIXED: Added detail-section wrapper -->
+                        <div class="detail-section job-list">
+                             <h3><i class="fas fa-list-ol"></i> Danh sách Lệnh làm việc (Máy STAT-1)</h3>
+                             <ul>
+                                <li><span class="job-status active"><i class="fas fa-play-circle"></i> Active</span><span class="job-details">Op 10: Gia công mặt A [MP/2025/00398]</span></li>
+                                <li><span class="job-status queued"><i class="far fa-clock"></i> Queued</span><span class="job-details">Op 20: Tiện tinh B [MP/2025/00398]</span></li>
+                                <li><span class="job-status queued"><i class="far fa-clock"></i> Queued</span><span class="job-details">Op 10: Gia công mặt A [MP/2025/00401]</span></li>
+                             </ul>
                          </div>
-                         <div class="progress-bar-container">
-                                <div id="detail-progress-bar" class="progress-bar" style="width: 46%;">46%</div>
-                         </div>
-                     </div>
+                     </div><!-- End Left Column -->
 
-                     <!-- Job List Section -->
-                     <div class="detail-section job-list">
-                         <h3><i class="fas fa-list-ol"></i> Danh sách Lệnh làm việc (Máy STAT-1)</h3>
-                         <ul>
-                            <li><span class="job-status active"><i class="fas fa-play-circle"></i> Active</span><span class="job-details">Op 10: Gia công mặt A [MP/2025/00398]</span></li>
-                            <li><span class="job-status queued"><i class="far fa-clock"></i> Queued</span><span class="job-details">Op 20: Tiện tinh B [MP/2025/00398]</span></li>
-                            <li><span class="job-status queued"><i class="far fa-clock"></i> Queued</span><span class="job-details">Op 10: Gia công mặt A [MP/2025/00401]</span></li>
-                         </ul>
-                     </div>
-                 </div><!-- End Left Column -->
-
-                 <!-- Right Column -->
-                 <div class="column">
-                      <!-- KPIs Section -->
-                     <div class="detail-section">
-                         <h3><i class="fas fa-tachometer-alt"></i> Chỉ số Hiệu suất (Ca hiện tại)</h3>
-                         <div class="kpi-grid">
-                             <div class="kpi-item">
-                                 <span class="kpi-value" id="detail-kpi-oee">78%</span>
-                                 <span class="kpi-label">OEE</span>
-                             </div>
-                              <div class="kpi-item">
-                                 <span class="kpi-value"><span id="detail-kpi-rate-actual">95</span><small>/giờ</small></span>
-                                 <span class="kpi-label">Tốc độ (Mtiêu: <span id="detail-kpi-rate-target">100</span>)</span>
-                             </div>
-                              <div class="kpi-item">
-                                 <span class="kpi-value"><span id="detail-kpi-cycletime-actual">38</span><small>s</small></span>
-                                 <span class="kpi-label">Cycle Time (Mtiêu: <span id="detail-kpi-cycletime-target">36</span>s)</span>
-                             </div>
-                              <div class="kpi-item">
-                                 <span class="kpi-value text-danger" id="detail-kpi-downtime">8<small> phút</small></span>
-                                 <span class="kpi-label">Tổng dừng máy</span>
+                     <!-- Right Column -->
+                     <div class="column">
+                         <!-- FIXED: Added detail-section wrapper -->
+                         <div class="detail-section">
+                             <h3><i class="fas fa-tachometer-alt"></i> Chỉ số Hiệu suất (Ca hiện tại)</h3>
+                             <div class="kpi-grid">
+                                 <div class="kpi-item"><span class="kpi-value" id="detail-kpi-oee">78%</span><span class="kpi-label">OEE</span></div>
+                                 <div class="kpi-item"><span class="kpi-value"><span id="detail-kpi-rate-actual">95</span><small>/giờ</small></span><span class="kpi-label">Tốc độ (Mtiêu: <span id="detail-kpi-rate-target">100</span>)</span></div>
+                                 <div class="kpi-item"><span class="kpi-value"><span id="detail-kpi-cycletime-actual">38</span><small>s</small></span><span class="kpi-label">Cycle Time (Mtiêu: <span id="detail-kpi-cycletime-target">36</span>s)</span></div>
+                                 <div class="kpi-item"><span class="kpi-value text-danger" id="detail-kpi-downtime">8<small> phút</small></span><span class="kpi-label">Tổng dừng máy</span></div>
                              </div>
                          </div>
-                     </div>
-
-                    <!-- Downtime Info -->
-                     <div class="detail-section">
-                        <h3><i class="fas fa-stopwatch"></i> Thông tin Dừng máy (Ca)</h3>
-                         <ul>
-                             <li><span class="label">Trạng thái hiện tại:</span> <span class="value text-success" id="detail-downtime-status">Đang chạy</span></li>
-                            <li><span class="label">Tổng dừng trong ca:</span> <span class="value" id="detail-downtime-total">15 phút</span></li>
-                            <li><span class="label">Lần dừng gần nhất:</span> <span class="value" id="detail-downtime-last">Setup (8 phút)</span></li>
-                         </ul>
-                    </div>
-
-                     <!-- Alerts Section -->
-                    <div class="detail-section alerts" style="background-color: #f8f9fa;">
-                         <h3><i class="fas fa-exclamation-triangle"></i> Cảnh báo / Thông báo</h3>
-                         <div class="alert-item" id="detail-alert-list">[Không có cảnh báo]</div>
-                    </div>
-                 </div> <!-- End Right Column -->
-            </div> <!-- End Detail Content Layout -->
+                         <!-- FIXED: Added detail-section wrapper -->
+                        <div class="detail-section">
+                            <h3><i class="fas fa-stopwatch"></i> Thông tin Dừng máy (Ca)</h3>
+                             <ul>
+                                 <li><span class="label">Trạng thái hiện tại:</span> <span class="value text-success" id="detail-downtime-status">Đang chạy</span></li>
+                                <li><span class="label">Tổng dừng trong ca:</span> <span class="value" id="detail-downtime-total">15 phút</span></li>
+                                <li><span class="label">Lần dừng gần nhất:</span> <span class="value" id="detail-downtime-last">Setup (8 phút)</span></li>
+                             </ul>
+                        </div>
+                        <!-- FIXED: Added detail-section wrapper -->
+                        <div class="detail-section alerts" style="background-color: #f8f9fa;">
+                             <h3><i class="fas fa-exclamation-triangle"></i> Cảnh báo / Thông báo</h3>
+                             <div class="alert-item" id="detail-alert-list">[Không có cảnh báo]</div>
+                        </div>
+                     </div> <!-- End Right Column -->
+                 </div> <!-- End Detail Content Layout -->
+            </div> <!-- End Detail Content Area -->
 
              <!-- Footer for Detail View -->
             <footer class="footer">
-                MES Application v1.4 | © 2025 Your Company | Chi tiết máy STAT-1
+                MES Application v1.6 | © 2025 Your Company | Chi tiết máy STAT-1
             </footer>
         </div><!-- End Container for Detail View -->
     </div> <!-- End Detail View -->
 
-    <!-- ============================= -->
-    <!-- = Pause Reason Modal        = -->
-    <!-- = (Initially Hidden)        = -->
-    <!-- ============================= -->
+    <!-- Pause Reason Modal (HTML Unchanged) -->
     <div id="pause-reason-modal" class="modal">
          <div class="modal-content">
             <h3 id="modal-title">Ghi nhận Lý do Tạm dừng</h3>
@@ -611,14 +421,8 @@
             <label for="reason-code">Lý do dừng:</label>
             <select id="reason-code" name="reason_code" required>
                  <option value="">-- Chọn lý do --</option>
-                 <optgroup label="Bất thường">
-                    <option value="ERR01">Hỏng máy</option><option value="ERR02">Hết/Chờ vật liệu</option><option value="ERR03">Lỗi chất lượng</option>
-                    <option value="ERR04">Mất điện</option><option value="ERR99">Khác (Bất thường)</option>
-                </optgroup>
-                 <optgroup label="Theo kế hoạch">
-                     <option value="PLN01">Nghỉ giữa ca</option><option value="PLN02">Setup/Thay đổi</option><option value="PLN03">Bảo trì kế hoạch</option>
-                    <option value="PLN04">Họp/Huấn luyện</option><option value="PLN99">Khác (Kế hoạch)</option>
-                </optgroup>
+                 <optgroup label="Bất thường"><option value="ERR01">Hỏng máy</option><option value="ERR02">Hết/Chờ vật liệu</option><option value="ERR03">Lỗi chất lượng</option><option value="ERR04">Mất điện</option><option value="ERR99">Khác (Bất thường)</option></optgroup>
+                 <optgroup label="Theo kế hoạch"><option value="PLN01">Nghỉ giữa ca</option><option value="PLN02">Setup/Thay đổi</option><option value="PLN03">Bảo trì kế hoạch</option><option value="PLN04">Họp/Huấn luyện</option><option value="PLN99">Khác (Kế hoạch)</option></optgroup>
             </select>
             <div class="modal-actions">
                 <button type="button" class="button-secondary" id="cancel-pause">Hủy bỏ</button>
@@ -631,7 +435,7 @@
     <script>
         const kanbanView = document.getElementById('kanban-view');
         const detailView = document.getElementById('detail-view');
-        const clickableCard = document.getElementById('stat-1-card'); // Target STAT-1
+        const clickableCard = document.getElementById('stat-1-card');
         const backButton = document.getElementById('back-button');
         const pauseButton = document.getElementById('pause-button');
         const pauseModal = document.getElementById('pause-reason-modal');
@@ -640,10 +444,12 @@
         const receiveMaterialButton = document.getElementById('receive-material-button');
         const updateQtyButton = document.getElementById('update-qty-button');
         const transferMaterialButton = document.getElementById('transfer-material-button');
+        const refreshStatusButton = document.getElementById('refresh-status-button'); // New Refresh button
 
         // Detail View Elements Cache
+        const detailHeaderSection = document.getElementById('detail-header-section');
         const detailMachineNameH1 = document.getElementById('detail-machine-name');
-        const detailMachineStatusSpan = document.getElementById('detail-machine-status');
+        const detailMachineStatusTextSpan = document.getElementById('detail-machine-status-text');
         const detailStatusExtraP = document.getElementById('detail-status-extra');
         const detailWoIdSpan = document.getElementById('detail-wo-id');
         const detailOpIdSpan = document.getElementById('detail-op-id');
@@ -658,8 +464,10 @@
         const detailKpiCycletimeActualSpan = document.getElementById('detail-kpi-cycletime-actual');
         const detailKpiCycletimeTargetSpan = document.getElementById('detail-kpi-cycletime-target');
         const detailKpiDowntimeSpan = document.getElementById('detail-kpi-downtime');
-        const detailDowntimeStatusSpan = document.getElementById('detail-downtime-status'); // Added for downtime section
+        const detailDowntimeStatusSpan = document.getElementById('detail-downtime-status');
         const modalTitleH3 = document.getElementById('modal-title');
+
+        let currentDetailMachineData = {}; // Store current machine data
 
         // --- Functions ---
         function showKanbanView() {
@@ -670,26 +478,26 @@
         }
 
         function updateDetailViewContent(machineData) {
-            if (!detailView) return;
+            if (!detailView || !machineData) return;
+            currentDetailMachineData = machineData;
 
-            // Update Header
+            // Update Header: Name, Status Text, Status Color Class, Extra Info
             if(detailMachineNameH1) detailMachineNameH1.textContent = `CHI TIẾT MÁY ${machineData.name}`;
-            if(detailMachineStatusSpan) {
-                detailMachineStatusSpan.textContent = machineData.statusText;
-                detailMachineStatusSpan.className = 'current-status'; // Reset
-                detailMachineStatusSpan.classList.add(`status-${machineData.statusClass}`);
+            if(detailHeaderSection && detailMachineStatusTextSpan) {
+                 const statusClass = `status-${machineData.statusClass || 'offline'}`;
+                 detailHeaderSection.className = 'detail-header'; // Reset base class
+                 detailHeaderSection.classList.add(statusClass); // Add new status class
+                 detailMachineStatusTextSpan.textContent = machineData.statusText;
             }
              if(detailStatusExtraP) {
-                 detailStatusExtraP.textContent = machineData.statusExtra || 'Hoạt động bình thường';
-                 detailStatusExtraP.style.display = machineData.statusExtra ? 'block' : 'none'; // Show only if text exists
+                 detailStatusExtraP.textContent = machineData.statusExtra || '';
+                 detailStatusExtraP.style.display = machineData.statusExtra ? 'block' : 'none';
              }
 
-            // Update Job Info
+            // Update Job Info, Progress, KPIs, Downtime Status (rest of the function remains the same)
             if(detailWoIdSpan) detailWoIdSpan.textContent = machineData.woId || '---';
             if(detailOpIdSpan) detailOpIdSpan.textContent = machineData.opId || '---';
-             if(detailProductSpan) detailProductSpan.textContent = machineData.product || '---';
-
-            // Update Progress
+            if(detailProductSpan) detailProductSpan.textContent = machineData.product || '---';
             const good = machineData.qtyGood || 0;
             const plan = machineData.qtyPlan || 0;
             const scrap = machineData.qtyScrap || 0;
@@ -697,44 +505,37 @@
             if(detailQtyGoodSpan) detailQtyGoodSpan.textContent = good;
             if(detailQtyPlanSpan) detailQtyPlanSpan.textContent = plan;
             if(detailQtyScrapSpan) detailQtyScrapSpan.textContent = scrap;
-             if(detailProgressBarDiv) {
-                 detailProgressBarDiv.style.width = `${progressPercent}%`;
-                 detailProgressBarDiv.textContent = `${progressPercent}%`;
-             }
-
-            // Update KPIs
+            if(detailProgressBarDiv) { detailProgressBarDiv.style.width = `${progressPercent}%`; detailProgressBarDiv.textContent = `${progressPercent}%`; }
             if(detailKpiOeeSpan) detailKpiOeeSpan.textContent = `${machineData.oee || 'N/A'}%`;
             if(detailKpiRateActualSpan) detailKpiRateActualSpan.textContent = machineData.rateActual || 'N/A';
             if(detailKpiRateTargetSpan) detailKpiRateTargetSpan.textContent = machineData.rateTarget || 'N/A';
             if(detailKpiCycletimeActualSpan) detailKpiCycletimeActualSpan.textContent = machineData.cycleActual || 'N/A';
             if(detailKpiCycletimeTargetSpan) detailKpiCycletimeTargetSpan.textContent = machineData.cycleTarget || 'N/A';
             if(detailKpiDowntimeSpan) detailKpiDowntimeSpan.textContent = `${machineData.downtime || 0} phút`;
-
-            // Update Downtime Section Status
              if(detailDowntimeStatusSpan){
                  detailDowntimeStatusSpan.textContent = machineData.statusText;
-                 detailDowntimeStatusSpan.className = `value text-${machineData.statusClass === 'running' ? 'success' : (machineData.statusClass === 'stopped' ? 'danger' : 'warning')}`;
+                 const statusColorClass = machineData.statusClass === 'running' ? 'text-success' : (machineData.statusClass === 'stopped' ? 'text-danger' : 'text-warning');
+                 detailDowntimeStatusSpan.className = `value ${statusColorClass}`;
              }
-
-            // --- TODO: Update Job List dynamically ---
-            // --- TODO: Update Alerts dynamically ---
+             // --- TODO: Update Job List dynamically ---
+             // --- TODO: Update Alerts dynamically ---
         }
 
         function showDetailView(machineData) {
-             updateDetailViewContent(machineData);
+             updateDetailViewContent(machineData); // Update content first
              if (kanbanView) kanbanView.style.display = 'none';
-             detailView.style.display = 'block';
+             detailView.style.display = 'block'; // Show the view
              if (pauseModal) pauseModal.style.display = 'none';
              window.scrollTo(0, 0);
         }
 
-         function showPauseModal(machineName) {
-             if (pauseModal) {
+         function showPauseModal(machineName) { /* Unchanged */
+              if (pauseModal) {
                  pauseModal.style.display = 'block';
                   if(modalTitleH3) modalTitleH3.textContent = `Ghi nhận Lý do Tạm dừng (${machineName})`;
              }
          }
-         function hidePauseModal() {
+         function hidePauseModal() { /* Unchanged */
               if (pauseModal) {
                  pauseModal.style.display = 'none';
                  const reasonSelect = document.getElementById('reason-code');
@@ -748,9 +549,8 @@
         if (clickableCard) {
             clickableCard.addEventListener('click', (event) => {
                 event.preventDefault();
-                // Placeholder Data for STAT-1
-                const machineData = {
-                    name: "STAT-1", statusClass: "running", statusText: "Đang chạy", statusExtra: null, // Initially no extra info
+                const machineData = { // Placeholder Data for STAT-1
+                    name: "STAT-1", statusClass: "running", statusText: "Đang chạy", statusExtra: null,
                     woId: "MP/2025/00398", opId: "OP-10 - Gia công mặt A", product: "[1112411-001] CFR SHAFT 13370",
                     qtyGood: 55, qtyPlan: 120, qtyScrap: 1, oee: 78, rateActual: 95, rateTarget: 100,
                     cycleActual: 38, cycleTarget: 36, downtime: 8
@@ -759,12 +559,13 @@
             });
         }
         if (backButton) { backButton.addEventListener('click', showKanbanView); }
-        if (pauseButton) {
+        if (pauseButton) { // Check if button exists before adding listener
              pauseButton.addEventListener('click', () => {
-                 const machineName = detailMachineNameH1 ? detailMachineNameH1.textContent.split('MÁY ')[1] : "Máy";
+                 const machineName = currentDetailMachineData.name || "Máy";
                 showPauseModal(machineName);
             });
-        }
+        } else { console.error("Pause button not found"); } // Debug if button missing
+
         if (cancelPauseButton) { cancelPauseButton.addEventListener('click', hidePauseModal); }
         if (submitPauseButton) {
             submitPauseButton.addEventListener('click', () => {
@@ -774,34 +575,33 @@
                  const typeRadio = document.querySelector('input[name="stop_type"]:checked');
                  const typeValue = typeRadio ? typeRadio.value : 'unplanned';
                  const typeText = typeValue === 'planned' ? 'Theo kế hoạch' : 'Bất thường';
-
                  if (!reasonValue) { alert('Vui lòng chọn lý do dừng máy.'); reasonSelect.focus(); return; }
 
                  console.log(`Máy tạm dừng. Lý do: ${reasonValue} (${reasonText}), Loại: ${typeValue}`);
                  alert(`Đã ghi nhận tạm dừng.\nLý do: ${reasonText}\nLoại: ${typeText}\n(Trạng thái máy sẽ được cập nhật)`);
                  hidePauseModal();
 
-                  // Update detail view status more completely
-                  if(detailMachineStatusSpan) {
-                      detailMachineStatusSpan.textContent = "Đã tạm dừng";
-                      detailMachineStatusSpan.className = 'current-status status-stopped'; // Set class for color
-                  }
-                   if(detailStatusExtraP) {
-                       detailStatusExtraP.textContent = `Lý do: ${reasonText} (${typeText})`;
-                       detailStatusExtraP.style.display = 'block'; // Make sure it's visible
-                   }
-                   if(detailDowntimeStatusSpan){ // Update status in downtime section too
-                        detailDowntimeStatusSpan.textContent = "Đã tạm dừng";
-                        detailDowntimeStatusSpan.className = `value text-danger`;
-                   }
+                  // Update detail view content AFTER pausing
+                  const updatedMachineData = {
+                      ...currentDetailMachineData, // Keep existing data
+                      statusClass: "stopped", // NEW STATUS
+                      statusText: "Đã tạm dừng", // NEW STATUS TEXT
+                      statusExtra: `Lý do: ${reasonText} (${typeText})` // NEW EXTRA INFO
+                  };
+                  updateDetailViewContent(updatedMachineData); // Update the entire view
             });
         }
-        // Placeholder listeners for new buttons
+         // Placeholder listeners for new buttons
          if(receiveMaterialButton) receiveMaterialButton.addEventListener('click', () => alert('Chức năng Nhận Nguyên Liệu cần được lập trình!'));
          if(updateQtyButton) updateQtyButton.addEventListener('click', () => alert('Chức năng Cập nhật Sản Lượng cần được lập trình!'));
          if(transferMaterialButton) transferMaterialButton.addEventListener('click', () => alert('Chức năng Chuyển Vật Tư cần được lập trình!'));
+         if(refreshStatusButton) refreshStatusButton.addEventListener('click', () => alert('Làm mới dữ liệu... (cần lập trình)!'));
 
         window.addEventListener('click', (event) => { if (event.target == pauseModal) { hidePauseModal(); } });
+
+        // **FIX:** Ensure event listeners are added only after DOM is loaded
+        // (Although placing script at end of body often suffices)
+        // document.addEventListener('DOMContentLoaded', function() { /* Add listeners here if script is in <head> */ });
 
     </script>
 
